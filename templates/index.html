@@ -1,0 +1,28 @@
+﻿{% extends "base.html" %}
+{% block title %}Home{% endblock %}
+{% block content %}
+<div class="hero">
+    <h1>Election Results Portal</h1>
+    <p>Access real-time polling unit scores, aggregate LGA totals, and submit new election results.</p>
+    <div class="feature-grid">
+        <a href="/polling_unit_result" class="feature-card" id="card-polling-unit">
+            <div class="icon">🔍</div>
+            <h3>Polling Unit Result</h3>
+            <p>Look up scores for any polling unit by entering its unique ID.</p>
+            <div class="arrow">View results →</div>
+        </a>
+        <a href="/lga_result" class="feature-card" id="card-lga">
+            <div class="icon">📊</div>
+            <h3>LGA Aggregated Results</h3>
+            <p>See the summed party scores across all polling units in a Local Government Area.</p>
+            <div class="arrow">Compare LGAs →</div>
+        </a>
+        <a href="/store_result" class="feature-card" id="card-store">
+            <div class="icon">➕</div>
+            <h3>Store New Result</h3>
+            <p>Submit a new polling unit result to the database for a party and score.</p>
+            <div class="arrow">Add result →</div>
+        </a>
+    </div>
+</div>
+{% endblock %}

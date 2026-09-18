@@ -1,0 +1,117 @@
+﻿{% extends "base.html" %}
+{% block title %}Store Result{% endblock %}
+{% block content %}
+<div class="page-header">
+    <h1>Store New Result</h1>
+    <p>Select a polling unit and enter scores for all parties to submit results.</p>
+</div>
+
+{% if message %}
+    <div class="alert alert-success" id="success-alert">✅ {{ message }}</div>
+{% endif %}
+{% if error %}
+    <div class="alert alert-error" id="error-alert">⚠️ {{ error }}</div>
+{% endif %}
+
+<form method="POST" id="store-result-form">
+    <div class="card">
+        <div class="card-title">Step 1 — Select Location</div>
+
+        <div class="form-group">
+            <label for="lga_select">Local Government Area</label>
+            <select id="lga_select" required>
+                <option value="">-- Select an LGA --</option>
+                {% for lga in lgas %}
+                    <option value="{{ lga.uniqueid }}">{{ lga.lga_name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="polling_unit_id">Polling Unit</label>
+            <select name="polling_unit_id" id="polling_unit_id" required>
+                <option value="">-- Select LGA first --</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-title">Step 2 — Enter Party Scores</div>
+        <div class="parties-grid">
+            {% for party in parties %}
+            <div class="party-input-row">
+                <label for="score_{{ party }}">
+                    <span class="party-badge">{{ party }}</span>
+                </label>
+                <input type="number" id="score_{{ party }}" name="score_{{ party }}"
+                       placeholder="0" min="0" class="party-score-input">
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-title">Step 3 — Submitter Info (Optional)</div>
+        <div class="form-group">
+            <label for="entered_by">Your Name</label>
+            <input type="text" id="entered_by" name="entered_by" placeholder="e.g. John Doe">
+        </div>
+        <button type="submit" class="btn btn-primary" id="submit-btn">
+            ➕ Store All Results
+        </button>
+    </div>
+</form>
+
+<style>
+.parties-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 14px;
+}
+.party-input-row {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+.party-score-input {
+    width: 100%;
+}
+</style>
+
+<script>
+document.getElementById('lga_select').addEventListener('change', function () {
+    const lgaId = this.value;
+    const puSelect = document.getElementById('polling_unit_id');
+
+    puSelect.innerHTML = '<option value="">Loading...</option>';
+    puSelect.disabled = true;
+
+    if (!lgaId) {
+        puSelect.innerHTML = '<option value="">-- Select LGA first --</option>';
+        puSelect.disabled = false;
+        return;
+    }
+
+    fetch('/api/polling_units/' + lgaId)
+        .then(res => res.json())
+        .then(data => {
+            puSelect.innerHTML = '<option value="">-- Select Polling Unit --</option>';
+            if (data.length === 0) {
+                puSelect.innerHTML = '<option value="">No polling units found</option>';
+            } else {
+                data.forEach(pu => {
+                    const opt = document.createElement('option');
+                    opt.value = pu.uniqueid;
+                    opt.textContent = pu.polling_unit_name;
+                    puSelect.appendChild(opt);
+                });
+            }
+            puSelect.disabled = false;
+        })
+        .catch(() => {
+            puSelect.innerHTML = '<option value="">Error loading units</option>';
+            puSelect.disabled = false;
+        });
+});
+</script>
+{% endblock %}
